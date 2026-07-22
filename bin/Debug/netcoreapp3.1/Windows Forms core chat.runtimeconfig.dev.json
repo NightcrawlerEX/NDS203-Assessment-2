@@ -1,8 +1,8 @@
 {
   "runtimeOptions": {
     "additionalProbingPaths": [
-      "C:\\Users\\thefa\\.dotnet\\store\\|arch|\\|tfm|",
-      "C:\\Users\\thefa\\.nuget\\packages"
+      "C:\\Users\\jsimp\\.dotnet\\store\\|arch|\\|tfm|",
+      "C:\\Users\\jsimp\\.nuget\\packages"
     ]
   }
 }
