@@ -24,67 +24,129 @@ namespace Windows_Forms_Chat
         public Form1()
         {
             InitializeComponent();
+        }//end constructor
 
-        }
-        
-        public bool CanHostOrJoin()
-        {
-            if (server == null && client == null)
-                return true;
-            else
-                return false;
-        }
-
+        /// <summary>
+        /// This function is called when the user clicks the button to start a host
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void HostButton_Click(object sender, EventArgs e)
         {
-            if (CanHostOrJoin())
+            //check and see if a session is already established
+            if (server != null)
             {
-                try
-                {
-                    int port = int.Parse(MyPortTextBox.Text);
-                    server = TCPChatServer.createInstance(port, ChatTextBox);
-                    //oh no, errors
-                    if (server == null)
-                        throw new Exception("Incorrect port value!");//thrown exceptions should exit the try and land in next catch
-
-                    server.SetupServer();
-
-
-                }
-                catch (Exception ex)
-                {
-                    ChatTextBox.Text += "Error: " + ex ;
-                    ChatTextBox.AppendText(Environment.NewLine);
-                }
+                MessageBox.Show("You are already running a server");
+                return;
             }
+            else if (client != null)
+            {
+                MessageBox.Show("You are already running a client");
+                return;
+            }
+            if(!TryAndStartServer()) MessageBox.Show("Failed to start server");
+            else
+            {
+                HostButton.Enabled = false;
+                JoinButton.Enabled = false;
+                ServerIPTextBox.Enabled = false;
+                serverPortTextBox.Enabled = false;
+            }
+        }//end HostButton_Click
 
-        }
-
+        /// <summary>
+        /// This function is called when the user clicks the button to start a client
+        /// 
+        /// application.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void JoinButton_Click(object sender, EventArgs e)
         {
-            if (CanHostOrJoin())
+            //check and see if a session is already established
+            if (server != null)
             {
-                try
-                {
-                    int port = int.Parse(MyPortTextBox.Text);
-                    int serverPort = int.Parse(serverPortTextBox.Text);
-                    client = TCPChatClient.CreateInstance(port, serverPort, ServerIPTextBox.Text, ChatTextBox);
-
-                    if (client == null)
-                        throw new Exception("Incorrect port value!");//thrown exceptions should exit the try and land in next catch
-
-                    client.ConnectToServer();
-
-                }
-                catch (Exception ex)
-                {
-                    client = null;
-                    ChatTextBox.Text += "Error: " + ex;
-                    ChatTextBox.AppendText(Environment.NewLine);
-                }
-            
+                MessageBox.Show("You are already running a server");
+                return;
             }
-        }
+            else if (client != null)
+            {
+                MessageBox.Show("You are already running a client");
+                return;
+            }
+
+            //Show a login form where the user can enter their preferred username
+            string preferredUsername;
+            using (LoginForm loginForm = new LoginForm())
+            {
+                if (loginForm.ShowDialog() == DialogResult.OK)
+                {
+                    preferredUsername = loginForm.Value;
+                }
+            }
+            
+            if(!TryAndStartClient()) MessageBox.Show("Failed to start client");
+            else
+            {
+                HostButton.Enabled = false;
+                JoinButton.Enabled = false;
+                ServerIPTextBox.Enabled = false;
+                serverPortTextBox.Enabled = false;
+            }
+        }//end JoinButton_Click
+
+
+        /// <summary>
+        /// called from HostButton_Click to attempt to start the server
+        /// </summary>
+        /// <returns></returns>
+        private bool TryAndStartServer()
+        {
+            try
+            {
+                int port = int.Parse(MyPortTextBox.Text);
+                server = TCPChatServer.createInstance(port, ChatTextBox);
+                if (server == null)
+                    throw new Exception("Incorrect port value!");
+
+                server.SetupServer();
+            }
+            catch (Exception ex)
+            {
+                ChatTextBox.Text += "Error: " + ex ;
+                ChatTextBox.AppendText(Environment.NewLine);
+                return false;
+            }
+            return true;
+        }//end TryAndStartServer
+
+        /// <summary>
+        /// This function is called from JoinButton_Click to attempt to start a client
+        /// session. If this fails it will return false
+        /// </summary>
+        /// <returns>false on fail</returns>
+        private bool TryAndStartClient()
+        {
+            try
+            {
+                int port = int.Parse(MyPortTextBox.Text);
+                int serverPort = int.Parse(serverPortTextBox.Text);
+                client = TCPChatClient.CreateInstance(port, serverPort, ServerIPTextBox.Text, ChatTextBox);
+
+                if (client == null)
+                    throw new Exception("Incorrect port value!");//thrown exceptions should exit the try and land in next catch
+
+                client.ConnectToServer();
+
+            }
+            catch (Exception ex)
+            {
+                client = null;
+                ChatTextBox.Text += "Error: " + ex;
+                ChatTextBox.AppendText(Environment.NewLine);
+            }
+            return false;
+        }//end TryAndStartClient
 
         private void SendButton_Click(object sender, EventArgs e)
         {

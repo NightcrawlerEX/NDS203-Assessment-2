@@ -1,9 +1,20 @@
+# Basic Information
 Student ID: A00125081
 
 To run this project we needed to install .NET Core 3.1 Desktop runtime
 https://dotnet.microsoft.com/en-us/download/dotnet/3.1
 
-To run this
+
+# To run this
+
 
 dotnet restore
 dotnet run --project "Windows Forms core chat.csproj"
+
+then open another terminal and run as client
+
+
+# Notes
+Competency will be demonstrated by managing connections, listening for incoming packets on 
+multiple threads, sending, receiving, and reading packets.
+
