@@ -153,8 +153,9 @@ namespace Windows_Forms_Chat
                 client = null;
                 ChatTextBox.Text += "Error: " + ex;
                 ChatTextBox.AppendText(Environment.NewLine);
+                return false;
             }
-            return false;
+            return true;
         }//end TryAndStartClient
 
         private void SendButton_Click(object sender, EventArgs e)
