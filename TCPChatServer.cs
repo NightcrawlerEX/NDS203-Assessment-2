@@ -1,4 +1,10 @@
-﻿using System;
+﻿/* 
+* NDS203 Assessment 2
+* Student ID: A00125081
+* Student Name: James Simpson
+* Repository: https://github.com/NightcrawlerEX/NDS203-Assessment-2
+*/
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Net;
@@ -103,9 +109,41 @@ namespace Windows_Forms_Chat
             Array.Copy(currentClientSocket.buffer, recBuf, received);
             string text = Encoding.ASCII.GetString(recBuf);
 
-           AddToChat( text );
+            AddToChat( text );
 
-            if (text.ToLower() == "!commands") // Client requested time
+            if(text.ToLower().StartsWith("!username"))
+            {
+                string proposedUsername = text.Substring(10).Trim();
+                //first check if the username is null
+                if (string.IsNullOrWhiteSpace(proposedUsername))
+                {
+                    SendToClient(currentClientSocket, "!username_failed Invalid username");
+                    DisconnectClient(currentClientSocket);
+                return;
+                }//endif
+                //if we get here username is not null
+                //check for existing username
+                bool bIsUsernameInUse = false;
+                foreach(var client in clientSockets)
+                {
+                    if(client == currentClientSocket) continue;
+                    if(client.username == proposedUsername)
+                    {
+                        bIsUsernameInUse = true;
+                        break;
+                    }
+                }//end foreach
+                if (bIsUsernameInUse)
+                {
+                    SendToClient(currentClientSocket, "!username_failed Username already in use");
+                    DisconnectClient(currentClientSocket);
+                    return;
+                }
+                currentClientSocket.username = proposedUsername;
+                SendToClient(currentClientSocket, "!username_success");
+                AddToChat(proposedUsername + " connected");
+            }
+            else if (text.ToLower() == "!commands") // Client requested time
             {
                 byte[] data = Encoding.ASCII.GetBytes("Commands are !commands !about !who !whisper !exit");
                 currentClientSocket.socket.Send(data);
@@ -120,10 +158,19 @@ namespace Windows_Forms_Chat
                 AddToChat("Client disconnected");
                 return;
             }
+            else if (string.IsNullOrWhiteSpace(currentClientSocket.username))
+            {
+                SendToClient(
+                currentClientSocket,
+                "You must register a username before sending messages."
+                );
+            }
             else
             {
-                //normal message broadcast out to all clients
-                SendToAll(text, currentClientSocket);
+                string message = currentClientSocket.username + ": " + text;
+
+                AddToChat(message);
+                SendToAll(message, currentClientSocket);
             }
             //we just received a message from this socket, better keep an ear out with another thread for the next one
             currentClientSocket.socket.BeginReceive(currentClientSocket.buffer, 0, ClientSocket.BUFFER_SIZE, SocketFlags.None, ReceiveCallback, currentClientSocket);
@@ -141,6 +188,27 @@ namespace Windows_Forms_Chat
             }
         }
 
+        private void SendToClient(ClientSocket client, string message)
+        {
+            byte[] data = Encoding.ASCII.GetBytes(message);
+            client.socket.Send(data);
+        }//end SendToClient
+
+        private void DisconnectClient(ClientSocket client)
+        {
+            clientSockets.Remove(client);
+
+            try
+            {
+                client.socket.Shutdown(SocketShutdown.Both);
+            }
+            catch (SocketException)
+            {
+            }
+
+            client.socket.Close();
+        }//end DisconnectClient
+
         
-    }
-}
+    }//end class
+}//end namespace

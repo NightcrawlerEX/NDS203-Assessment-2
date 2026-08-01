@@ -1,4 +1,10 @@
-﻿using System;
+﻿/* 
+* NDS203 Assessment 2
+* Student ID: A00125081
+* Student Name: James Simpson
+* Repository: https://github.com/NightcrawlerEX/NDS203-Assessment-2
+*/
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Windows.Forms;

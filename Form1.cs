@@ -1,4 +1,10 @@
-﻿using System;
+﻿/* 
+* NDS203 Assessment 2
+* Student ID: A00125081
+* Student Name: James Simpson
+* Repository: https://github.com/NightcrawlerEX/NDS203-Assessment-2
+*/
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -34,7 +40,7 @@ namespace Windows_Forms_Chat
         /// <param name="e"></param>
         private void HostButton_Click(object sender, EventArgs e)
         {
-            //check and see if a session is already established
+            //check and see if a session is aglready established
             if (server != null)
             {
                 MessageBox.Show("You are already running a server");

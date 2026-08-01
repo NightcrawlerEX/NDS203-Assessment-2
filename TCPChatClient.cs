@@ -1,4 +1,10 @@
-﻿using System;
+﻿/* 
+* NDS203 Assessment 2
+* Student ID: A00125081
+* Student Name: James Simpson
+* Repository: https://github.com/NightcrawlerEX/NDS203-Assessment-2
+*/
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
@@ -18,6 +24,8 @@ namespace Windows_Forms_Chat
         public int serverPort;
         public string serverIP;
 
+        public string _preferredUsername;
+
 
         public static TCPChatClient CreateInstance(int port, int serverPort, string serverIP, TextBox chatTextBox, string preferredUsername)
         {
@@ -34,17 +42,18 @@ namespace Windows_Forms_Chat
                 tcp.serverIP = serverIP;
                 tcp.chatTextBox = chatTextBox;
                 tcp.clientSocket.socket = tcp.socket;
+                tcp._preferredUsername = preferredUsername;
 
             }
 
             return tcp;
         }
 
-        public void ConnectToServer()
+        public void ConnectToServer(int maxAttempts = 5)
         {
             int attempts = 0;
 
-            while (!socket.Connected)
+            while (!socket.Connected && attempts < maxAttempts)
             {
                 try
                 {
@@ -62,7 +71,10 @@ namespace Windows_Forms_Chat
             //Console.Clear();
             AddToChat("Connected");
             //keep open thread for receiving data
-            clientSocket.socket.BeginReceive(clientSocket.buffer, 0, ClientSocket.BUFFER_SIZE, SocketFlags.None, ReceiveCallback, clientSocket);
+            clientSocket.socket.BeginReceive(clientSocket.buffer,
+             0, ClientSocket.BUFFER_SIZE, SocketFlags.None, ReceiveCallback, 
+             clientSocket);
+             SendString("!username " + _preferredUsername);
         }
 
         public void SendString(string text)
