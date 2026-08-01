@@ -158,6 +158,30 @@ namespace Windows_Forms_Chat
                 AddToChat("Client disconnected");
                 return;
             }
+            else if (text.ToLower() == "!who")
+            {
+                
+            }
+            else if (text.ToLower() == "!about")
+            {
+                
+            }
+            else if(text.ToLower().StartsWith("!whisper"))
+            {
+                
+            }
+            else if (text.ToLower() == "!time")
+            {
+                
+            }
+            else if(text.ToLower() == "!mods")
+            {
+                
+            }
+            else if(text.ToLower().StartsWith("!mod"))
+            {
+                
+            }
             else if (string.IsNullOrWhiteSpace(currentClientSocket.username))
             {
                 SendToClient(
