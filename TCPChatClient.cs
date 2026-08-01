@@ -19,7 +19,7 @@ namespace Windows_Forms_Chat
         public string serverIP;
 
 
-        public static TCPChatClient CreateInstance(int port, int serverPort, string serverIP, TextBox chatTextBox)
+        public static TCPChatClient CreateInstance(int port, int serverPort, string serverIP, TextBox chatTextBox, string preferredUsername)
         {
             TCPChatClient tcp = null;
             //if port values are valid and ip worth attempting to join

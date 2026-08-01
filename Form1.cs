@@ -24,6 +24,7 @@ namespace Windows_Forms_Chat
         public Form1()
         {
             InitializeComponent();
+            this.Text = "Assignment 2";
         }//end constructor
 
         /// <summary>
@@ -76,7 +77,7 @@ namespace Windows_Forms_Chat
             }
 
             //Show a login form where the user can enter their preferred username
-            string preferredUsername;
+            string preferredUsername = string.Empty;
             using (LoginForm loginForm = new LoginForm())
             {
                 if (loginForm.ShowDialog() == DialogResult.OK)
@@ -85,7 +86,7 @@ namespace Windows_Forms_Chat
                 }
             }
             
-            if(!TryAndStartClient()) MessageBox.Show("Failed to start client");
+            if(!TryAndStartClient(preferredUsername)) MessageBox.Show("Failed to start client");
             else
             {
                 HostButton.Enabled = false;
@@ -124,14 +125,16 @@ namespace Windows_Forms_Chat
         /// This function is called from JoinButton_Click to attempt to start a client
         /// session. If this fails it will return false
         /// </summary>
+        /// <param name="preferredUsername">The username the user entered</param>
         /// <returns>false on fail</returns>
-        private bool TryAndStartClient()
+        private bool TryAndStartClient(string preferredUsername)
         {
             try
             {
                 int port = int.Parse(MyPortTextBox.Text);
                 int serverPort = int.Parse(serverPortTextBox.Text);
-                client = TCPChatClient.CreateInstance(port, serverPort, ServerIPTextBox.Text, ChatTextBox);
+                client = TCPChatClient.CreateInstance(port, serverPort, 
+                    ServerIPTextBox.Text, ChatTextBox, preferredUsername);
 
                 if (client == null)
                     throw new Exception("Incorrect port value!");//thrown exceptions should exit the try and land in next catch
