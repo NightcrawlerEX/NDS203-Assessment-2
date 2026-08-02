@@ -243,6 +243,42 @@ namespace Windows_Forms_Chat
             currentClientSocket.socket.BeginReceive(currentClientSocket.buffer, 0, ClientSocket.BUFFER_SIZE, SocketFlags.None, ReceiveCallback, currentClientSocket);
         }
 
+        /// <summary>
+        /// Used to process a server command
+        /// </summary>
+        public void ProcessCommand(string command)
+        {
+            if(command.ToLower().StartsWith("!mod"))
+            {
+                //rip out the username
+                string username = command.Substring(5).Trim();
+                //find target
+                ClientSocket target = null;
+                foreach (ClientSocket client in clientSockets)
+                {
+                    if(client.username == username) {target = client; break;}
+                }//end foreach
+                //if could not be found then send error
+                if (target == null)
+                {
+                    AddToChat("Could not find user: " + username);
+                    return;
+                }
+                //flip the boolean
+                target.bIsModerator = !target.bIsModerator;
+                if (target.bIsModerator)
+                {
+                    AddToChat(target.username + " is now a moderator.");
+                    SendToClient(target, "The server made you a moderator.");
+                }
+                else
+                {
+                    AddToChat(target.username + " is no longer a moderator.");
+                    SendToClient(target, "The server removed your moderator status.");
+                }
+            }//endif
+        }//end ProcessCommand
+
         public void SendToAll(string str, ClientSocket from)
         {
             foreach(ClientSocket c in clientSockets)

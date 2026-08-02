@@ -22,5 +22,7 @@ namespace Windows_Forms_Chat
         public byte[] buffer = new byte[BUFFER_SIZE];
 
         public string username = string.Empty;
+
+        public bool bIsModerator = false;
     }//end class
 }//end namespace
