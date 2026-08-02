@@ -177,11 +177,45 @@ namespace Windows_Forms_Chat
             }
             else if(text.ToLower().StartsWith("!whisper"))
             {
-                
+                //reference https://www.programiz.com/csharp-programming/library/string/indexof
+                string restOfCommand = text.Substring(9).Trim();//get the right hand side
+                int spacePosition = restOfCommand.IndexOf(' ');//find the space
+                //send them a message if they get the command wrong
+                if (spacePosition == -1) { SendToClient(currentClientSocket, "Usage: !whisper username message"); return;}
+                string username = restOfCommand.Substring(0, spacePosition);
+                string message = restOfCommand.Substring(spacePosition + 1).Trim();
+                //now find the target client
+                ClientSocket target = null;
+                foreach (ClientSocket client in clientSockets)
+                {
+                    if(client.username == username)
+                    {
+                        target = client;
+                        break;
+                    }
+                }//end foreach
+                //if could not find client send error
+                if (target == null)
+                {
+                    SendToClient(currentClientSocket,"Could not find user: " + username);
+                    return;
+                }
+                //if no message
+                if (string.IsNullOrWhiteSpace(message))
+                {
+                    SendToClient(currentClientSocket,"You must include a message.");
+                }
+                //if we get here everything is good
+                SendToClient(target, "[Whisper from " + currentClientSocket.username + "] " + message);
+                SendToClient(currentClientSocket, "[Whisper to " + target.username + "] " + message);
+                AddToChat(currentClientSocket.username + " whispered to " + target.username);
             }
             else if (text.ToLower() == "!time")
             {
-                
+                //this is the custom one
+                string timeMessage = "Server time: " + DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss tt");
+                SendToClient(currentClientSocket, timeMessage);
+                AddToChat("Server time sent to " + currentClientSocket.username);
             }
             else if(text.ToLower() == "!mods")
             {
