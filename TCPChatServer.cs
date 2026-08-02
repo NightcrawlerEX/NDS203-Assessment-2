@@ -160,11 +160,20 @@ namespace Windows_Forms_Chat
             }
             else if (text.ToLower() == "!who")
             {
-                
+                string outputString = "Connected Users: \n";
+                foreach(ClientSocket clientSocket in clientSockets)
+                {
+                    if(!string.IsNullOrWhiteSpace(clientSocket.username)) outputString += clientSocket.username;
+                }
+                SendToClient(currentClientSocket, outputString);
             }
             else if (text.ToLower() == "!about")
             {
-                
+                string outputString =
+                    "Student ID: A00125081\n" +
+                    "Student Name: James Simpson\n" +
+                    "Repository: https://github.com/NightcrawlerEX/NDS203-Assessment-2";
+                SendToClient(currentClientSocket, outputString);
             }
             else if(text.ToLower().StartsWith("!whisper"))
             {
