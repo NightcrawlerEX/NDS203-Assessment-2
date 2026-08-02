@@ -232,6 +232,10 @@ namespace Windows_Forms_Chat
                 "You must register a username before sending messages."
                 );
             }
+            else if(text.ToLower().StartsWith("!kick"))
+            {
+                
+            }
             else
             {
                 string message = currentClientSocket.username + ": " + text;
@@ -276,7 +280,29 @@ namespace Windows_Forms_Chat
                     AddToChat(target.username + " is no longer a moderator.");
                     SendToClient(target, "The server removed your moderator status.");
                 }
-            }//endif
+            }
+            else if(command.ToLower().StartsWith("!mod"))
+            {
+                string outputString = "Current moderators:";
+                bool bDoModeratorsExist = false;
+                foreach (ClientSocket client in clientSockets)
+                {
+                    if (client.bIsModerator)
+                    {
+                        outputString += "\n" + client.username;
+                        bDoModeratorsExist = true;
+                    }
+                }//end foreac
+                if (!bDoModeratorsExist)//if no moderators exist
+                {
+                    outputString += "\nNo moderators connected.";
+                }
+                AddToChat(outputString);
+            }
+            else //bad command
+            {
+                AddToChat("Unknown server command.");
+            }
         }//end ProcessCommand
 
         public void SendToAll(string str, ClientSocket from)
