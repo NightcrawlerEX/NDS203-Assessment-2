@@ -234,7 +234,28 @@ namespace Windows_Forms_Chat
             }
             else if(text.ToLower().StartsWith("!kick"))
             {
-                
+                if (!currentClientSocket.bIsModerator)
+                {
+                    SendToClient(currentClientSocket, "Only moderators can kick users.");
+                    return;
+                }
+                //get the username
+                string username = text.Substring(6).Trim();
+                ClientSocket target = null;
+                foreach (ClientSocket client in clientSockets)
+                {
+                    if (client.username == username){target = client; break; }
+                }//end foreach
+                if (target == null)//if could not find
+                {
+                    SendToClient(currentClientSocket,"Could not find user: " + target);
+                    return;
+                }//endif
+                //if we get here kick the target
+                SendToClient(target, "You were kicked by moderator " + currentClientSocket.username);
+                DisconnectClient(target);
+                SendToClient(currentClientSocket, target + " was kicked.");
+                AddToChat(target + " was kicked by " + currentClientSocket.username);
             }
             else
             {
@@ -252,7 +273,26 @@ namespace Windows_Forms_Chat
         /// </summary>
         public void ProcessCommand(string command)
         {
-            if(command.ToLower().StartsWith("!mod"))
+            //MessageBox.Show("ProcessCommand received: " + command);
+            if(command.ToLower() == "!mods")
+            {
+                string outputString = "Current moderators:";
+                bool bDoModeratorsExist = false;
+                foreach (ClientSocket client in clientSockets)
+                {
+                    if (client.bIsModerator)
+                    {
+                        outputString += "\n" + client.username;
+                        bDoModeratorsExist = true;
+                    }
+                }//end foreac
+                if (!bDoModeratorsExist)//if no moderators exist
+                {
+                    outputString += "\nNo moderators connected.";
+                }
+                AddToChat(outputString);
+            }
+            else if(command.ToLower().StartsWith("!mod"))
             {
                 //rip out the username
                 string username = command.Substring(5).Trim();
@@ -280,24 +320,6 @@ namespace Windows_Forms_Chat
                     AddToChat(target.username + " is no longer a moderator.");
                     SendToClient(target, "The server removed your moderator status.");
                 }
-            }
-            else if(command.ToLower().StartsWith("!mod"))
-            {
-                string outputString = "Current moderators:";
-                bool bDoModeratorsExist = false;
-                foreach (ClientSocket client in clientSockets)
-                {
-                    if (client.bIsModerator)
-                    {
-                        outputString += "\n" + client.username;
-                        bDoModeratorsExist = true;
-                    }
-                }//end foreac
-                if (!bDoModeratorsExist)//if no moderators exist
-                {
-                    outputString += "\nNo moderators connected.";
-                }
-                AddToChat(outputString);
             }
             else //bad command
             {

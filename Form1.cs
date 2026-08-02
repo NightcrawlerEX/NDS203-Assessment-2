@@ -158,13 +158,24 @@ namespace Windows_Forms_Chat
             return true;
         }//end TryAndStartClient
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void SendButton_Click(object sender, EventArgs e)
         {
+            //MessageBox.Show("send");
+            string message = TypeTextBox.Text.Trim();
+
             if (client != null)
                 client.SendString(TypeTextBox.Text);
             else if (server != null)
-                server.SendToAll(TypeTextBox.Text, null);
-        }
+            {
+                if (message.StartsWith("!")) server.ProcessCommand(message);
+                else server.SendToAll(TypeTextBox.Text, null);
+            }
+        }//end SendButton_Click
 
         private void Form1_Load(object sender, EventArgs e)
         {
