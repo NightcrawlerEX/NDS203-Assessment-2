@@ -26,7 +26,15 @@ namespace Windows_Forms_Chat
 
         public string _preferredUsername;
 
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="port"></param>
+        /// <param name="serverPort"></param>
+        /// <param name="serverIP"></param>
+        /// <param name="chatTextBox"></param>
+        /// <param name="preferredUsername"></param>
+        /// <returns></returns>
         public static TCPChatClient CreateInstance(int port, int serverPort, string serverIP, TextBox chatTextBox, string preferredUsername)
         {
             TCPChatClient tcp = null;
@@ -47,8 +55,12 @@ namespace Windows_Forms_Chat
             }
 
             return tcp;
-        }
+        }//end CreateInstance
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="maxAttempts"></param>
         public void ConnectToServer(int maxAttempts = 5)
         {
             int attempts = 0;
@@ -75,15 +87,23 @@ namespace Windows_Forms_Chat
              0, ClientSocket.BUFFER_SIZE, SocketFlags.None, ReceiveCallback, 
              clientSocket);
              SendString("!username " + _preferredUsername);
-        }
+        }//end ConnectToServer
 
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="text"></param>
         public void SendString(string text)
         {
             byte[] buffer = Encoding.ASCII.GetBytes(text);
             socket.Send(buffer, 0, buffer.Length, SocketFlags.None);
-        }
+        }//end SendString
 
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="AR"></param>
         public void ReceiveCallback(IAsyncResult AR)
         {
             ClientSocket currentClientSocket = (ClientSocket)AR.AsyncState;
@@ -93,6 +113,12 @@ namespace Windows_Forms_Chat
             try
             {
                 received = currentClientSocket.socket.EndReceive(AR);
+                if (received == 0)
+                {
+                    AddToChat("SERVER: Disconnected from server.");
+                    currentClientSocket.socket.Close();
+                    return;
+                }
             }
             catch (SocketException)
             {
@@ -108,16 +134,30 @@ namespace Windows_Forms_Chat
             string text = Encoding.ASCII.GetString(recBuf);
             Console.WriteLine("Received Text: " + text);
 
+            //Fix BUG that silently crashes
+            if (text.StartsWith("!username_failed"))
+            {
+                string reason = text.Substring("!username_failed".Length).Trim();
+
+                AddToChat("SERVER: " + reason);
+                socket.Close();
+                return;
+            }
+
             //text is from server but could have been broadcast from the other clients
             AddToChat( text );
             
             //we just received a message from this socket, better keep an ear out with another thread for the next one
             currentClientSocket.socket.BeginReceive(currentClientSocket.buffer, 0, ClientSocket.BUFFER_SIZE, SocketFlags.None, ReceiveCallback, currentClientSocket);
-        }
+        }//end ReceiveCallBack
+
+        /// <summary>
+        /// 
+        /// </summary>
         public void Close()
         {
             socket.Close();
-        }
-    }
+        }//end close
+    }//end class
 
-}
+}//end namespace
