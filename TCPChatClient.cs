@@ -143,9 +143,15 @@ namespace Windows_Forms_Chat
                 socket.Close();
                 return;
             }
-
-            //text is from server but could have been broadcast from the other clients
-            AddToChat( text );
+            else if (text == "!username_success")
+            {
+                AddToChat("SERVER: Username accepted.");
+            }
+            else
+            {
+                //text is from server but could have been broadcast from the other clients
+                AddToChat( text );
+            }
             
             //we just received a message from this socket, better keep an ear out with another thread for the next one
             currentClientSocket.socket.BeginReceive(currentClientSocket.buffer, 0, ClientSocket.BUFFER_SIZE, SocketFlags.None, ReceiveCallback, currentClientSocket);
