@@ -96,8 +96,17 @@ namespace Windows_Forms_Chat
         /// <param name="text"></param>
         public void SendString(string text)
         {
-            byte[] buffer = Encoding.ASCII.GetBytes(text);
-            socket.Send(buffer, 0, buffer.Length, SocketFlags.None);
+            try
+            {
+                byte[] buffer = Encoding.ASCII.GetBytes(text);
+                socket.Send(buffer, 0, buffer.Length, SocketFlags.None);
+            }
+            catch
+            {
+                AddToChat("SERVER: You are not connected.");
+                socket.Close();
+            }
+            
         }//end SendString
 
         /// <summary>
@@ -153,8 +162,15 @@ namespace Windows_Forms_Chat
                 AddToChat( text );
             }
             
+            try {
             //we just received a message from this socket, better keep an ear out with another thread for the next one
             currentClientSocket.socket.BeginReceive(currentClientSocket.buffer, 0, ClientSocket.BUFFER_SIZE, SocketFlags.None, ReceiveCallback, currentClientSocket);
+            }
+            catch
+            {
+                AddToChat("SERVER: Disconnected from server.");
+                currentClientSocket.socket.Close();
+            }
         }//end ReceiveCallBack
 
         /// <summary>
