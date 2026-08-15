@@ -145,7 +145,7 @@ namespace Windows_Forms_Chat
             }
             else if (text.ToLower() == "!commands") // Client requested time
             {
-                byte[] data = Encoding.ASCII.GetBytes("Commands are !commands !about !who !whisper !exit");
+                byte[] data = Encoding.ASCII.GetBytes("Commands are !commands !about !who !whisper !time !exit");
                 currentClientSocket.socket.Send(data);
                 AddToChat("Commands sent to client");
             }
