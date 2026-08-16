@@ -61,11 +61,97 @@ namespace Ass3
             command.Dispose();
             connection.Close();
             connection.Dispose();
+
             //if rows added is 1 then it was successful. If its 0 then there was 
             //a problem
             if(rowsAdded > 0) return true;
             else return false;
         }//end CreateUser
+
+        /// <summary>
+        /// TryLogin
+        /// </summary>
+        /// <param name="username"></param>
+        /// <param name="password"></param>
+        /// <returns>false on fail. True on success</returns>
+        public bool TryLogin(string username, string password)
+        {
+            SQLiteConnection connection =
+                new SQLiteConnection(_connectionString);
+
+            connection.Open();
+            string commandString =
+                "SELECT COUNT(*) FROM Users " +
+                "WHERE Username = @username " +
+                "AND Password = @password;";
+            SQLiteCommand command =
+                new SQLiteCommand(commandString, connection);
+
+            command.Parameters.AddWithValue("@username", username);
+            command.Parameters.AddWithValue("@password", password);
+            long numberOfUsers = (long)command.ExecuteScalar();
+            command.Dispose();
+            connection.Close();
+            connection.Dispose();
+            if(numberOfUsers > 0) return true;
+            else return false;
+        }//end TryLogin
+
+        public string GetScores()
+        {
+            SQLiteConnection connection = new SQLiteConnection(_connectionString);
+            connection.Open();
+            string commandString =
+                "SELECT Username, Wins, Losses, Draws " +
+                "FROM Users " +
+                "ORDER BY Wins DESC;";
+
+            SQLiteCommand command =
+                new SQLiteCommand(commandString, connection);
+            SQLiteDataReader reader = command.ExecuteReader();
+
+            string scoreString = "Scores: \n";
+
+            while (reader.Read())
+            {
+                scoreString += reader["Username"].ToString() + ", ";
+                scoreString += "W: " + reader["Wins"].ToString() + ", ";
+                scoreString += "L: " + reader["Losses"].ToString() + ", ";
+                scoreString += "D: " + reader["Draws"].ToString() + ", ";
+            }//end while
+
+            reader.Close();
+            reader.Dispose();
+            command.Dispose();
+            connection.Close();
+            connection.Dispose();
+
+            return scoreString;
+        }//end GetScores
+
+        /// <summary>
+        /// Adds one win to the specified user.
+        /// </summary>
+        /// <param name="username"></param>
+        public void RecordWin(string username)
+        {
+            SQLiteConnection connection = new SQLiteConnection(_connectionString);
+            connection.Open();
+
+            string commandString =
+                "UPDATE Users " +
+                "SET Wins = Wins + 1 " +
+                "WHERE Username = @username;";
+
+            SQLiteCommand command = new SQLiteCommand(commandString, connection);
+
+            command.Parameters.AddWithValue("@username", username);
+            command.ExecuteNonQuery();
+
+            command.Dispose();
+            connection.Close();
+            connection.Dispose();
+        }//end RecordWin
         
     }//end class
 }//end namespace
