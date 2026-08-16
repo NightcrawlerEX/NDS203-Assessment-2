@@ -86,9 +86,8 @@ namespace Windows_Forms_Chat
             }
             if (!socket.Connected)
             {
-                AddToChat("Failed to connect to server.");
                 socket.Close();
-                return;
+                throw new Exception("Failed to connect to server.");
             }
             //Console.Clear();
             AddToChat("Connected");
