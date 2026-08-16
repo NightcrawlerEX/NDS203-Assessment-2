@@ -72,7 +72,8 @@ namespace Windows_Forms_Chat
                 {
                     grid[i] = TileType.blank;
                 }
-                if (buttons.Count >= 9) buttons[i].Text = TileTypeToString(grid[i]);
+                //if (buttons.Count >= 9) buttons[i].Text = TileTypeToString(grid[i]);
+                UpdateButton(i);
             }//end for
         }//end StringToGrid
 
@@ -89,7 +90,8 @@ namespace Windows_Forms_Chat
             if (grid[index] == TileType.blank)
             {
                 grid[index] = tileType;
-                if (buttons.Count >= 9) buttons[index].Text = TileTypeToString(tileType);
+                //if (buttons.Count >= 9) buttons[index].Text = TileTypeToString(tileType);
+                UpdateButton(index);
                 return true;
             }
             return false;//not valid
@@ -153,10 +155,11 @@ namespace Windows_Forms_Chat
             for (int i = 0; i < 9; i++)
             {
                 grid[i] = TileType.blank;
-                if (buttons.Count >= 9)
-                    buttons[i].Text = TileTypeToString(TileType.blank);
+                //if (buttons.Count >= 9)
+                  //  buttons[i].Text = TileTypeToString(TileType.blank);
+                  UpdateButton(i);
             }
-        }
+        }//end ResetBoard
 
         public static string TileTypeToString(TileType t)
         {
@@ -172,7 +175,16 @@ namespace Windows_Forms_Chat
         {
             if(buttons.Count < 9) return;//just in case
             string buttonText = TileTypeToString(grid[index]);
-            buttons[index].Text = buttonText;
+            //buttons[index].Text = buttonText;
+            //fixing exception
+            if (buttons[index].InvokeRequired)
+            {
+                buttons[index].Invoke(new Action(() =>{buttons[index].Text = buttonText;}));
+            }
+            else
+            {
+                buttons[index].Text = buttonText;
+            }
         }//end UpdateButton
 
     }//end class
