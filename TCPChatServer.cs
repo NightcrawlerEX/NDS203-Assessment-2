@@ -1,5 +1,5 @@
 ﻿/* 
-* NDS203 Assessment 2
+* NDS203 Assessment 3
 * Student ID: A00125081
 * Student Name: James Simpson
 * Repository: https://github.com/NightcrawlerEX/NDS203-Assessment-2
@@ -106,6 +106,13 @@ namespace Windows_Forms_Chat
             try
             {
                 received = currentClientSocket.socket.EndReceive(AR);
+                if (received == 0)
+                {
+                    AddToChat("Client disconnected");
+                    currentClientSocket.socket.Close();
+                    clientSockets.Remove(currentClientSocket);
+                    return;
+                }
             }
             catch (SocketException)
             {
