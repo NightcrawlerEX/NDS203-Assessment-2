@@ -1,5 +1,5 @@
 ﻿/* 
-* NDS203 Assessment 2
+* NDS203 Assessment 3
 * Student ID: A00125081
 * Student Name: James Simpson
 * Repository: https://github.com/NightcrawlerEX/NDS203-Assessment-2
@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Windows.Forms;
+using System.Xml;
 
 namespace Windows_Forms_Chat
 {
@@ -24,8 +25,8 @@ namespace Windows_Forms_Chat
     {
         //TODO change myTurn to false and playerTileType to blank for defaults
         //they should be dictated by the server
-        public bool myTurn = true;
-        public TileType playerTileType = TileType.cross;
+        public bool myTurn = false;
+        public TileType playerTileType = TileType.blank;
         public List<Button> buttons = new List<Button>();//assuming 9 in order
         public TileType[] grid = new TileType[9];
 
@@ -33,28 +34,66 @@ namespace Windows_Forms_Chat
         {
             string s = "";
             //TODO convert values on board to a string e.g "xox___x_o"
+            for(int i=0; i < grid.Length; i++)
+            {
+                if(grid[i] == TileType.cross)
+                {
+                    s += "x";
+                }
+                else if(grid[i] == TileType.naught)
+                {
+                    s += "o";
+                }
+                else
+                {
+                    s += "_";
+                }
+            }//end for i
 
             return s;
-        }
+        }//end GridToString
+
         public void StringToGrid(string s)
         {
             //TODO take string s e.g "xox___x_o" and use its values to update grid and the buttons
-        }
+            if(s.Length != 9) return;
 
+            for(int i=0; i < s.Length; i++)
+            {
+                if(s[i] == 'x')
+                {
+                    grid[i] = TileType.cross;
+                }
+                else if(s[i] == 'o')
+                {
+                    grid[i] = TileType.naught;
+                }
+                else
+                {
+                    grid[i] = TileType.blank;
+                }
+                if (buttons.Count >= 9) buttons[i].Text = TileTypeToString(grid[i]);
+            }//end for
+        }//end StringToGrid
+
+        /// <summary>
+        /// try and set the type
+        /// </summary>
+        /// <param name="index"></param>
+        /// <param name="tileType"></param>
+        /// <returns>false if move was not valid</returns>
         public bool SetTile(int index, TileType tileType)
         {
-            if(grid[index] == TileType.blank)
+            if (index < 0 || index >= grid.Length) return false;
+            if (tileType == TileType.blank) return false;
+            if (grid[index] == TileType.blank)
             {
                 grid[index] = tileType;
-                if (buttons.Count >= 9)
-                    buttons[index].Text = TileTypeToString(tileType);
+                if (buttons.Count >= 9) buttons[index].Text = TileTypeToString(tileType);
                 return true;
             }
-            //else
-
-            return true;
-
-        }
+            return false;//not valid
+        }//end settile
 
         public GameState GetGameState()
         {
