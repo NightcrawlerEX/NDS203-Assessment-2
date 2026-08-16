@@ -97,6 +97,10 @@ namespace Ass3
             else return false;
         }//end TryLogin
 
+        /// <summary>
+        /// Get the scores
+        /// </summary>
+        /// <returns>score string</returns>
         public string GetScores()
         {
             SQLiteConnection connection = new SQLiteConnection(_connectionString);
@@ -117,7 +121,7 @@ namespace Ass3
                 scoreString += reader["Username"].ToString() + ", ";
                 scoreString += "W: " + reader["Wins"].ToString() + ", ";
                 scoreString += "L: " + reader["Losses"].ToString() + ", ";
-                scoreString += "D: " + reader["Draws"].ToString() + ", ";
+                scoreString += "D: " + reader["Draws"].ToString() + "\n";
             }//end while
 
             reader.Close();
@@ -153,5 +157,54 @@ namespace Ass3
             connection.Dispose();
         }//end RecordWin
         
+        /// <summary>
+        /// Adds one loss to the specified user.
+        /// </summary>
+        /// <param name="username"></param>
+        public void RecordLoss(string username)
+        {
+            SQLiteConnection connection = new SQLiteConnection(_connectionString);
+
+            connection.Open();
+
+            string commandString =
+                "UPDATE Users " +
+                "SET Losses = Losses + 1 " +
+                "WHERE Username = @username;";
+
+            SQLiteCommand command = new SQLiteCommand(commandString, connection);
+
+            command.Parameters.AddWithValue("@username", username);
+            command.ExecuteNonQuery();
+
+            command.Dispose();
+            connection.Close();
+            connection.Dispose();
+        }//end RecordLoss
+
+        /// <summary>
+        /// Adds one draw to the specified user.
+        /// </summary>
+        /// <param name="username"></param>
+        public void RecordDraw(string username)
+        {
+            SQLiteConnection connection = new SQLiteConnection(_connectionString);
+
+            connection.Open();
+
+            string commandString =
+                "UPDATE Users " +
+                "SET Draws = Draws + 1 " +
+                "WHERE Username = @username;";
+
+            SQLiteCommand command = new SQLiteCommand(commandString, connection);
+
+            command.Parameters.AddWithValue("@username", username);
+            command.ExecuteNonQuery();
+
+            command.Dispose();
+            connection.Close();
+            connection.Dispose();
+        }//end RecordDraw
     }//end class
 }//end namespace
