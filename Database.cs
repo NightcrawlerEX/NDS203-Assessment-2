@@ -16,13 +16,26 @@ namespace Ass3
         private const string _connectionString = "Data Source=Users.db;Version=3;";
 
         /// <summary>
-        /// Constructor
+        /// Open and create the table
         /// </summary>
-        public Database()
+        public void CreateTable()
         {
             SQLiteConnection connection = new SQLiteConnection(_connectionString);
-            string command = "CREATE TABLE IF NOT EXISTS Users (" +
+            connection.Open();
+            string commandString = "CREATE TABLE IF NOT EXISTS Users (" +
+            "ID INTEGER PRIMARY KEY AUTOINCREMENT, " +
+            "Username TEXT NOT NULL UNIQUE, " +
+            "Password TEXT NOT NULL, " +
+            "Wins INTEGER NOT NULL DEFAULT 0, " +
+            "Losses INTEGER NOT NULL DEFAULT 0, " +
+            "Draws INTEGER NOT NULL DEFAULT 0" +
             ");";
+
+            SQLiteCommand command = new SQLiteCommand(commandString, connection);
+            command.ExecuteNonQuery();
+            command.Dispose();
+            connection.Close();
+            connection.Dispose();
         }//end constructor
         
     }//end class
