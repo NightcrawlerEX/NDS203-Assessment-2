@@ -157,7 +157,74 @@ namespace Windows_Forms_Chat
             //new register command
             if (currentClientSocket.state == ClientState.Login && text.ToLower().StartsWith("!register"))
             {
-                
+                //https://learn.microsoft.com/en-us/dotnet/api/system.string.split?view=net-10.0#system-string-split(system-char()-system-int32-system-stringsplitoptions)
+                string[] registerDetails = text.Split(new char[] { ' ' }, 3, StringSplitOptions.RemoveEmptyEntries);
+                if (registerDetails.Length != 3)
+                {
+                    SendToClient(currentClientSocket, "!register_failed Usage: !register username password");
+                }
+                else
+                {
+                    string username = registerDetails[1];
+                    string password = registerDetails[2];
+                    //try and create user
+                    if(_database.CreateUser(username, password))
+                    {
+                        //if successful
+                        SendToClient(currentClientSocket, "!register_success");
+                        AddToChat("New user registered: " + username);
+                    }
+                    else//failed to create user
+                    {
+                        SendToClient(currentClientSocket, "!register_failed");
+                    }//endif
+                }
+            }
+            else if (currentClientSocket.state == ClientState.Login && text.ToLower().StartsWith("!login"))
+            {
+                //https://learn.microsoft.com/en-us/dotnet/api/system.string.split?view=net-10.0#system-string-split(system-char()-system-int32-system-stringsplitoptions)
+                string[] loginDetails = text.Split(new char[] { ' ' }, 3, StringSplitOptions.RemoveEmptyEntries);
+                if (loginDetails.Length != 3)
+                {
+                    SendToClient(currentClientSocket, "!login_failed Usage: !login username password");
+                }
+                else
+                {
+                    string username = loginDetails[1];
+                    string password = loginDetails[2];
+                    bool usernameInUse = false;
+                    foreach(ClientSocket client in clientSockets)
+                    {
+                        if(client == currentClientSocket) continue;
+                        if (client.state != ClientState.Login && client.username == username)
+                        {
+                            usernameInUse = true;
+                            break;
+                        }
+                    }//end foreach
+                    if(usernameInUse)
+                    {
+                        SendToClient(currentClientSocket, "!login_failed User is already logged in");
+                    }
+                    else//username not in use
+                    {
+                        if(_database.TryLogin(username, password))
+                        {
+                            currentClientSocket.username = username;
+                            currentClientSocket.state = ClientState.Chatting;
+                            SendToClient(currentClientSocket,"!login_success");
+                            AddToChat(username + " logged in");
+                        }
+                        else //login not successful
+                        {
+                            SendToClient(currentClientSocket, "!login_failed Incorrect username or password");
+                        }
+                    }//endif
+                }
+            }
+            else if (currentClientSocket.state == ClientState.Login) //login check
+            {
+                SendToClient(currentClientSocket, "SERVER: You must register or log in first.");
             }
             else if (text.ToLower() == "!commands") // Client requested time
             {
