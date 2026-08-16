@@ -43,3 +43,10 @@ C:\Users\jsimp\OneDrive\Backups\UNI\NDS203 Assessment 2\c026d7fb-70da-49ad-9197-
 C:\Users\jsimp\OneDrive\Backups\UNI\NDS203 Assessment 2\c026d7fb-70da-49ad-9197-b0590529cf70\Windows Forms core chat\obj\Debug\netcoreapp3.1\Windows Forms core chat.dll
 C:\Users\jsimp\OneDrive\Backups\UNI\NDS203 Assessment 2\c026d7fb-70da-49ad-9197-b0590529cf70\Windows Forms core chat\obj\Debug\netcoreapp3.1\Windows Forms core chat.pdb
 C:\Users\jsimp\OneDrive\Backups\UNI\NDS203 Assessment 2\c026d7fb-70da-49ad-9197-b0590529cf70\Windows Forms core chat\obj\Debug\netcoreapp3.1\Windows Forms core chat.genruntimeconfig.cache
+C:\Users\jsimp\OneDrive\Backups\UNI\NDS203 Assessment 2\c026d7fb-70da-49ad-9197-b0590529cf70\Windows Forms core chat\bin\Debug\netcoreapp3.1\System.Data.SQLite.dll
+C:\Users\jsimp\OneDrive\Backups\UNI\NDS203 Assessment 2\c026d7fb-70da-49ad-9197-b0590529cf70\Windows Forms core chat\bin\Debug\netcoreapp3.1\runtimes\linux-x64\native\SQLite.Interop.dll
+C:\Users\jsimp\OneDrive\Backups\UNI\NDS203 Assessment 2\c026d7fb-70da-49ad-9197-b0590529cf70\Windows Forms core chat\bin\Debug\netcoreapp3.1\runtimes\osx-x64\native\SQLite.Interop.dll
+C:\Users\jsimp\OneDrive\Backups\UNI\NDS203 Assessment 2\c026d7fb-70da-49ad-9197-b0590529cf70\Windows Forms core chat\bin\Debug\netcoreapp3.1\runtimes\win-x64\native\SQLite.Interop.dll
+C:\Users\jsimp\OneDrive\Backups\UNI\NDS203 Assessment 2\c026d7fb-70da-49ad-9197-b0590529cf70\Windows Forms core chat\bin\Debug\netcoreapp3.1\runtimes\win-x86\native\SQLite.Interop.dll
+C:\Users\jsimp\OneDrive\Backups\UNI\NDS203 Assessment 2\c026d7fb-70da-49ad-9197-b0590529cf70\Windows Forms core chat\obj\Debug\netcoreapp3.1\Windows Forms core chat.csproj.AssemblyReference.cache
+C:\Users\jsimp\OneDrive\Backups\UNI\NDS203 Assessment 2\c026d7fb-70da-49ad-9197-b0590529cf70\Windows Forms core chat\obj\Debug\netcoreapp3.1\Windows .38B99F9B.Up2Date
