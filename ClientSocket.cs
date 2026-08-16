@@ -32,5 +32,9 @@ namespace Windows_Forms_Chat
 
         public bool bIsModerator = false;
         public ClientState state = ClientState.Login;
+        public ClientSocket opponent = null;
+        public TileType tileType = TileType.blank;
+        public bool myTurn = false;
+        public TicTacToe game = null;
     }//end class
 }//end namespace

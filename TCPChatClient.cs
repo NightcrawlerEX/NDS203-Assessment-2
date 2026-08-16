@@ -17,6 +17,7 @@ namespace Windows_Forms_Chat
     public class TCPChatClient : TCPChatBase
     {
         //public static TCPChatClient tcpChatClient;
+        public TicTacToe ticTacToe;
         public Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         public ClientSocket clientSocket = new ClientSocket();
 
@@ -39,14 +40,14 @@ namespace Windows_Forms_Chat
         /// <returns></returns>
         public static TCPChatClient CreateInstance(int port, 
         int serverPort, string serverIP, TextBox chatTextBox, string username,
-        string password, bool isRegistering)
+        string password, bool isRegistering, TicTacToe ticTacToe)
         {
             TCPChatClient tcp = null;
             //if port values are valid and ip worth attempting to join
             if (port > 0 && port < 65535 && 
                 serverPort > 0 && serverPort < 65535 && 
                 serverIP.Length > 0 &&
-                chatTextBox != null)
+                chatTextBox != null && ticTacToe != null)
             {
                 tcp = new TCPChatClient();
                 tcp.port = port;
@@ -57,6 +58,7 @@ namespace Windows_Forms_Chat
                 tcp._username = username;
                 tcp._password = password;
                 tcp._isRegistering = isRegistering;
+                tcp.ticTacToe = ticTacToe;
             }
 
             return tcp;
@@ -182,6 +184,69 @@ namespace Windows_Forms_Chat
                 string reason = text.Substring("!login_failed".Length).Trim();
                 if (string.IsNullOrWhiteSpace(reason)) reason = "Login failed.";
                 AddToChat("SERVER: " + reason);
+            }
+            else if (text.StartsWith("!game_start"))
+            {
+                string[] gameDetails = text.Split(new char[] { ' ' }, 3, StringSplitOptions.RemoveEmptyEntries);
+                if (gameDetails.Length == 3)
+                {
+                    if (gameDetails[1] == "cross")
+                    {
+                        ticTacToe.playerTileType = TileType.cross;
+                    }
+                    else
+                    {
+                        ticTacToe.playerTileType = TileType.naught;
+                    }
+
+                    clientSocket.state = ClientState.Playing;
+
+                    AddToChat(
+                        "SERVER: Game started against " +
+                        gameDetails[2] +
+                        ". You are " +
+                        TicTacToe.TileTypeToString(
+                            ticTacToe.playerTileType
+                        ) +
+                        "."
+                    );
+                }//endif
+            }
+            else if (text == "!turn")
+            {
+                ticTacToe.myTurn = true;
+                AddToChat("SERVER: It is your turn.");
+            }
+            else if (text == "!wait")
+            {
+                ticTacToe.myTurn = false;
+                AddToChat("SERVER: Waiting for opponent.");
+            }
+            else if (text.StartsWith("!board"))
+            {
+                string board = text.Substring("!board".Length).Trim();
+                ticTacToe.StringToGrid(board);
+            }
+            else if (text.StartsWith("!game_end"))
+            {
+                string result = text.Substring("!game_end".Length).Trim();
+
+                ticTacToe.myTurn = false;
+                ticTacToe.playerTileType = TileType.blank;
+                clientSocket.state = ClientState.Chatting;
+
+                if (result == "win")
+                {
+                    AddToChat("SERVER: Win");
+                }
+                else if (result == "lose")
+                {
+                    AddToChat("SERVER: You lost ");
+                }
+                else
+                {
+                    AddToChat("SERVER: draw");
+                }
             }
             else
             {

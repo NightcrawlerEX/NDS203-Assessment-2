@@ -265,6 +265,71 @@ namespace Windows_Forms_Chat
                     "Repository: https://github.com/NightcrawlerEX/NDS203-Assessment-2";
                 SendToClient(currentClientSocket, outputString);
             }
+            else if(text.ToLower().StartsWith("!play"))
+            {
+                if (currentClientSocket.state != ClientState.Chatting)
+                {
+                    SendToClient(currentClientSocket, "SERVER: You cannot start a game now.");
+                }
+                else
+                {
+                    string username = text.Substring(5).Trim();
+                    ClientSocket opponent = null;
+                    foreach (ClientSocket client in clientSockets)
+                    {
+                        if (client.username == username)
+                        {
+                            opponent = client;
+                            break;
+                        }
+                    }//end foreach
+                    if (string.IsNullOrWhiteSpace(username))
+                    {
+                        SendToClient(currentClientSocket, "Usage: !play username");
+                    }
+                    else if (opponent == null)
+                    {
+                        SendToClient(currentClientSocket, "SERVER: Couldn't find user: " + username);
+                    }
+                    else if (opponent == currentClientSocket)
+                    {
+                        SendToClient(currentClientSocket,"SERVER: Inalvid");
+                    }
+                    else if (opponent.state != ClientState.Chatting)
+                    {
+                        SendToClient(currentClientSocket, "SERVER: not available");
+                    }
+                    else//start the game
+                    {
+                        TicTacToe newGame = new TicTacToe();
+
+                        currentClientSocket.opponent = opponent;
+                        opponent.opponent = currentClientSocket;
+
+                        currentClientSocket.game = newGame;
+                        opponent.game = newGame;
+
+                        currentClientSocket.tileType = TileType.cross;
+                        opponent.tileType = TileType.naught;
+
+                        currentClientSocket.myTurn = true;
+                        opponent.myTurn = false;
+
+                        currentClientSocket.state = ClientState.Playing;
+                        opponent.state = ClientState.Playing;
+
+                        SendToClient(currentClientSocket, "!game_start cross " + opponent.username);
+
+                        SendToClient(opponent, "!game_start naught " + currentClientSocket.username);
+
+                        SendToClient(currentClientSocket, "!turn");
+
+                        SendToClient(opponent, "!wait");
+
+                        AddToChat(currentClientSocket.username + " started a game with " + opponent.username);
+                    }
+                }//endif
+            }
             else if(text.ToLower().StartsWith("!whisper"))
             {
                 //reference https://www.programiz.com/csharp-programming/library/string/indexof
@@ -346,6 +411,68 @@ namespace Windows_Forms_Chat
                 DisconnectClient(target);
                 SendToClient(currentClientSocket, target + " was kicked.");
                 AddToChat(target + " was kicked by " + currentClientSocket.username);
+            }
+            else if (text.ToLower().StartsWith("!move"))
+            {
+                if (currentClientSocket.state != ClientState.Playing ||
+                    currentClientSocket.game == null ||
+                    currentClientSocket.opponent == null)
+                {
+                    SendToClient(currentClientSocket, "SERVER: You are not currently playing.");
+                }
+                else if (!currentClientSocket.myTurn)
+                {
+                    SendToClient(currentClientSocket, "SERVER: It is not your turn.");
+                }
+                else
+                {
+                    string moveText = text.Substring(5).Trim();
+                    int index;
+
+                    if (!int.TryParse(moveText, out index))
+                    {
+                        SendToClient(currentClientSocket, "Usage: !move index");
+                    }
+                    else
+                    {
+                        bool validMove = currentClientSocket.game.SetTile(index, currentClientSocket.tileType);
+
+                        if (!validMove)
+                        {
+                            SendToClient(currentClientSocket, "SERVER: That move is not valid." );
+                        }
+                        else
+                        {
+                            ClientSocket opponent = currentClientSocket.opponent;
+
+                            string board = currentClientSocket.game.GridToString();
+                            SendToClient( currentClientSocket, "!board " + board );
+                            SendToClient(opponent, "!board " + board);
+
+                            GameState gameState = currentClientSocket.game.GetGameState();
+
+                            if (gameState == GameState.playing)
+                            {
+                                currentClientSocket.myTurn = false;
+                                opponent.myTurn = true;
+                                SendToClient( currentClientSocket,"!wait");
+                                SendToClient(opponent,"!turn" );
+                            }
+                            else if (gameState == GameState.draw)
+                            {
+                                SendToClient(currentClientSocket,"!game_end draw");
+                                SendToClient(opponent, "!game_end draw");
+                                EndGame(currentClientSocket,opponent );
+                            }
+                            else
+                            {
+                                SendToClient(currentClientSocket,"!game_end win" );
+                                SendToClient(opponent,"!game_end lose");
+                                EndGame(currentClientSocket,opponent);
+                            }
+                        }
+                    }
+                }
             }
             else
             {
@@ -450,6 +577,23 @@ namespace Windows_Forms_Chat
             client.socket.Close();
         }//end DisconnectClient
 
+        private void EndGame(ClientSocket playerOne, ClientSocket playerTwo)
+        {
+            playerOne.state = ClientState.Chatting;
+            playerTwo.state = ClientState.Chatting;
+
+            playerOne.myTurn = false;
+            playerTwo.myTurn = false;
+
+            playerOne.tileType = TileType.blank;
+            playerTwo.tileType = TileType.blank;
+
+            playerOne.game = null;
+            playerTwo.game = null;
+
+            playerOne.opponent = null;
+            playerTwo.opponent = null;
+        }//end EndGame
         
     }//end class
 }//end namespace

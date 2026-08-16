@@ -151,7 +151,8 @@ namespace Windows_Forms_Chat
                     ChatTextBox, 
                     username,
                     password,
-                    isRegistering);
+                    isRegistering,
+                    ticTacToe);
 
                 if (client == null)
                     throw new Exception("Incorrect port value!");//thrown exceptions should exit the try and land in next catch
@@ -202,38 +203,17 @@ namespace Windows_Forms_Chat
             ticTacToe.buttons.Add(button9);
         }
 
-        private void AttemptMove(int i)
+        private void AttemptMove(int index)
         {
-            if (ticTacToe.myTurn)
+            if (client == null) return;
+            if (client.clientSocket.state != ClientState.Playing) return;
+            if (!ticTacToe.myTurn)
             {
-                bool validMove = ticTacToe.SetTile(i, ticTacToe.playerTileType);
-                if (validMove)
-                {
-                    //tell server about it
-                    //ticTacToe.myTurn = false;//call this too when ready with server
-                }
-                //example, do something similar from server
-                GameState gs = ticTacToe.GetGameState();
-                if (gs == GameState.crossWins)
-                {
-                    ChatTextBox.AppendText("X wins!");
-                    ChatTextBox.AppendText(Environment.NewLine);
-                    ticTacToe.ResetBoard();
-                }
-                if (gs == GameState.naughtWins)
-                {
-                    ChatTextBox.AppendText(") wins!");
-                    ChatTextBox.AppendText(Environment.NewLine);
-                    ticTacToe.ResetBoard();
-                }
-                if (gs == GameState.draw)
-                {
-                    ChatTextBox.AppendText("Draw!");
-                    ChatTextBox.AppendText(Environment.NewLine);
-                    ticTacToe.ResetBoard();
-                }
+                ChatTextBox.AppendText("SERVER: It is not your turn." + Environment.NewLine);
+                return;
             }
-        }
+            client.SendString("!move " + index);
+        }//end AttemptMove
 
         private void button1_Click(object sender, EventArgs e)
         {
