@@ -24,7 +24,9 @@ namespace Windows_Forms_Chat
         public int serverPort;
         public string serverIP;
 
-        public string _preferredUsername;
+        public string _username;
+        public string _password;
+        public bool _isRegistering;
 
         /// <summary>
         /// 
@@ -35,7 +37,9 @@ namespace Windows_Forms_Chat
         /// <param name="chatTextBox"></param>
         /// <param name="preferredUsername"></param>
         /// <returns></returns>
-        public static TCPChatClient CreateInstance(int port, int serverPort, string serverIP, TextBox chatTextBox, string preferredUsername)
+        public static TCPChatClient CreateInstance(int port, 
+        int serverPort, string serverIP, TextBox chatTextBox, string username,
+        string password, bool isRegistering)
         {
             TCPChatClient tcp = null;
             //if port values are valid and ip worth attempting to join
@@ -50,8 +54,9 @@ namespace Windows_Forms_Chat
                 tcp.serverIP = serverIP;
                 tcp.chatTextBox = chatTextBox;
                 tcp.clientSocket.socket = tcp.socket;
-                tcp._preferredUsername = preferredUsername;
-
+                tcp._username = username;
+                tcp._password = password;
+                tcp._isRegistering = isRegistering;
             }
 
             return tcp;
@@ -79,14 +84,26 @@ namespace Windows_Forms_Chat
                     chatTextBox.Text = "";
                 }
             }
-
+            if (!socket.Connected)
+            {
+                AddToChat("Failed to connect to server.");
+                socket.Close();
+                return;
+            }
             //Console.Clear();
             AddToChat("Connected");
             //keep open thread for receiving data
             clientSocket.socket.BeginReceive(clientSocket.buffer,
              0, ClientSocket.BUFFER_SIZE, SocketFlags.None, ReceiveCallback, 
              clientSocket);
-             SendString("!username " + _preferredUsername);
+            if (_isRegistering)
+            {
+                SendString("!register " + _username + " " + _password);
+            }
+            else
+            {
+                SendString("!login " + _username + " " + _password);
+            }
         }//end ConnectToServer
 
 
@@ -143,23 +160,34 @@ namespace Windows_Forms_Chat
             string text = Encoding.ASCII.GetString(recBuf);
             Console.WriteLine("Received Text: " + text);
 
-            //Fix BUG that silently crashes
-            if (text.StartsWith("!username_failed"))
+            if (text == "!register_success")
             {
-                string reason = text.Substring("!username_failed".Length).Trim();
-
-                AddToChat("SERVER: " + reason);
-                socket.Close();
-                return;
+                AddToChat("SERVER: Registration successful.");
+                // Registration succeeded, so now log in.
+                _isRegistering = false;
+                SendString("!login " + _username + " " + _password);
             }
-            else if (text == "!username_success")
+            else if (text.StartsWith("!register_failed"))
             {
-                AddToChat("SERVER: Username accepted.");
+                string reason = text.Substring("!register_failed".Length).Trim();
+                if (string.IsNullOrWhiteSpace(reason)) reason = "Registration failed.";
+                AddToChat("SERVER: " + reason);
+            }
+            else if (text == "!login_success")
+            {
+                clientSocket.state = ClientState.Chatting;
+                AddToChat("SERVER: Login successful.");
+            }
+            else if (text.StartsWith("!login_failed"))
+            {
+                string reason = text.Substring("!login_failed".Length).Trim();
+                if (string.IsNullOrWhiteSpace(reason)) reason = "Login failed.";
+                AddToChat("SERVER: " + reason);
             }
             else
             {
-                //text is from server but could have been broadcast from the other clients
-                AddToChat( text );
+                // Normal chat message from the server.
+                AddToChat(text);
             }
             
             try {

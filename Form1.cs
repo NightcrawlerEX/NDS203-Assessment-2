@@ -1,5 +1,5 @@
 ﻿/* 
-* NDS203 Assessment 2
+* NDS203 Assessment 3
 * Student ID: A00125081
 * Student Name: James Simpson
 * Repository: https://github.com/NightcrawlerEX/NDS203-Assessment-2
@@ -83,16 +83,22 @@ namespace Windows_Forms_Chat
             }
 
             //Show a login form where the user can enter their preferred username
-            string preferredUsername = string.Empty;
+            //string preferredUsername = string.Empty;
+            string username;
+            string password;
+            bool isRegistering;
             using (LoginForm loginForm = new LoginForm())
             {
-                if (loginForm.ShowDialog() == DialogResult.OK)
+                if (loginForm.ShowDialog() != DialogResult.OK)
                 {
-                    preferredUsername = loginForm.Value;
+                    return;
                 }
+                username = loginForm.Username;
+                password = loginForm.Password;
+                isRegistering = loginForm.IsRegistering;
             }
             
-            if(!TryAndStartClient(preferredUsername)) MessageBox.Show("Failed to start client");
+            if(!TryAndStartClient(username, password, isRegistering)) MessageBox.Show("Failed to start client");
             else
             {
                 HostButton.Enabled = false;
@@ -133,14 +139,19 @@ namespace Windows_Forms_Chat
         /// </summary>
         /// <param name="preferredUsername">The username the user entered</param>
         /// <returns>false on fail</returns>
-        private bool TryAndStartClient(string preferredUsername)
+        private bool TryAndStartClient(string username, string password, bool isRegistering)
         {
             try
             {
                 int port = int.Parse(MyPortTextBox.Text);
                 int serverPort = int.Parse(serverPortTextBox.Text);
-                client = TCPChatClient.CreateInstance(port, serverPort, 
-                    ServerIPTextBox.Text, ChatTextBox, preferredUsername);
+                client = TCPChatClient.CreateInstance(port,
+                    serverPort, 
+                    ServerIPTextBox.Text,
+                    ChatTextBox, 
+                    username,
+                    password,
+                    isRegistering);
 
                 if (client == null)
                     throw new Exception("Incorrect port value!");//thrown exceptions should exit the try and land in next catch
