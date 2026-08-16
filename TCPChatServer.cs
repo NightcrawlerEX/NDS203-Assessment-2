@@ -122,7 +122,7 @@ namespace Windows_Forms_Chat
 
             AddToChat( text );
 
-            if(text.ToLower().StartsWith("!username"))
+            /*if(text.ToLower().StartsWith("!username"))
             {
                 string proposedUsername = text.Substring(10).Trim();
                 //first check if the username is null
@@ -153,6 +153,11 @@ namespace Windows_Forms_Chat
                 currentClientSocket.username = proposedUsername;
                 SendToClient(currentClientSocket, "!username_success");
                 AddToChat(proposedUsername + " connected");
+            }*/
+            //new register command
+            if (currentClientSocket.state == ClientState.Login && text.ToLower().StartsWith("!register"))
+            {
+                
             }
             else if (text.ToLower() == "!commands") // Client requested time
             {
