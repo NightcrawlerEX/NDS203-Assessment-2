@@ -11,14 +11,12 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Windows.Forms;
-using Ass3;//new for the new assessment
-
 //https://github.com/AbleOpus/NetworkingSamples/blob/master/MultiServer/Program.cs
 namespace Windows_Forms_Chat
 {
     public class TCPChatServer : TCPChatBase
     {
-        
+        private Ass3.Database _database = new Ass3.Database();
         public Socket serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         //connected clients
         public List<ClientSocket> clientSockets = new List<ClientSocket>();
@@ -39,15 +37,27 @@ namespace Windows_Forms_Chat
             return tcp;
         }
 
+        /// <summary>
+        /// Setup the server and create the database
+        /// </summary>
         public void SetupServer()
         {
+            chatTextBox.Text += "Create the database...\n";
+            try {
+            _database.CreateTable();
+            }
+            catch
+            {
+                chatTextBox.Text += "[Error] Failed to create Database\n";
+                throw new Exception("Failed to create server");
+            }
             chatTextBox.Text += "Setting up server...\n";
             serverSocket.Bind(new IPEndPoint(IPAddress.Any, port));
             serverSocket.Listen(0);
             //kick off thread to read connecting clients, when one connects, it'll call out AcceptCallback function
             serverSocket.BeginAccept(AcceptCallback, this);
             chatTextBox.Text += "Server setup complete\n";
-        }
+        }//end SetupServer
 
 
 

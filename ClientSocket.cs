@@ -11,6 +11,13 @@ using System.Text;
 
 namespace Windows_Forms_Chat
 {
+    public enum ClientState
+    {
+        Login,
+        Chatting,
+        Playing
+    }//end enum
+
     /// <summary>
     /// Cli
     /// </summary>
@@ -24,5 +31,6 @@ namespace Windows_Forms_Chat
         public string username = string.Empty;
 
         public bool bIsModerator = false;
+        public ClientState state = ClientState.Login;
     }//end class
 }//end namespace
