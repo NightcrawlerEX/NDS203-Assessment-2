@@ -36,7 +36,36 @@ namespace Ass3
             command.Dispose();
             connection.Close();
             connection.Dispose();
-        }//end constructor
+        }//end CreateTable
+
+        /// <summary>
+        /// CreateUser
+        /// </summary>
+        /// <param name="username"></param>
+        /// <param name="password"></param>
+        /// <returns>false if user already exists. True if successful</returns>
+        public bool CreateUser(string username, string password)
+        {
+            SQLiteConnection connection = new SQLiteConnection(_connectionString);
+            connection.Open();
+            string commandString =
+                "INSERT OR IGNORE INTO Users (Username, Password) " +
+                "VALUES (@username, @password);";
+            SQLiteCommand command =
+                new SQLiteCommand(commandString, connection);
+
+            command.Parameters.AddWithValue("@username", username);
+            command.Parameters.AddWithValue("@password", password);
+            int rowsAdded = command.ExecuteNonQuery();
+
+            command.Dispose();
+            connection.Close();
+            connection.Dispose();
+            //if rows added is 1 then it was successful. If its 0 then there was 
+            //a problem
+            if(rowsAdded > 0) return true;
+            else return false;
+        }//end CreateUser
         
     }//end class
 }//end namespace
