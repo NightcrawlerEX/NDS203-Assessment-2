@@ -166,6 +166,16 @@ namespace Windows_Forms_Chat
                 return "X";
             else
                 return "O";
-        }
-    }
-}
+        }//end TileTypeToString
+
+        private void UpdateButton(int index)
+        {
+            if(buttons.Count < 9) return;//just in case
+            string buttonText = TileTypeToString(grid[index]);
+            buttons[index].Text = buttonText;
+        }//end UpdateButton
+
+    }//end class
+
+}//end namespace
+

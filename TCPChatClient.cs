@@ -200,6 +200,7 @@ namespace Windows_Forms_Chat
                     }
 
                     clientSocket.state = ClientState.Playing;
+                    ticTacToe.ResetBoard();
 
                     AddToChat(
                         "SERVER: Game started against " +

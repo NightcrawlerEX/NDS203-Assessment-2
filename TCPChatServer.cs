@@ -235,7 +235,7 @@ namespace Windows_Forms_Chat
             }
             else if (text.ToLower() == "!commands") // Client requested time
             {
-                byte[] data = Encoding.ASCII.GetBytes("Commands are !commands !about !who !whisper !time !exit");
+                byte[] data = Encoding.ASCII.GetBytes("Commands are !commands !about !who !whisper !time !exit !scores");
                 currentClientSocket.socket.Send(data);
                 AddToChat("Commands sent to client");
             }
@@ -380,6 +380,20 @@ namespace Windows_Forms_Chat
             {
                 
             }
+            else if(text.ToLower().StartsWith("!scores"))
+            {
+                try
+                {
+                    string scores = _database.GetScores();
+                    SendToClient(currentClientSocket, scores);
+                    AddToChat("Scores sent to: " + currentClientSocket.username);
+                }
+                catch
+                {
+                    SendToClient(currentClientSocket, "Exception: failed to get scores");
+                    AddToChat("Exception: failed to get scores");
+                }
+            }
             else if (string.IsNullOrWhiteSpace(currentClientSocket.username))
             {
                 SendToClient(
@@ -460,12 +474,30 @@ namespace Windows_Forms_Chat
                             }
                             else if (gameState == GameState.draw)
                             {
+                                try
+                                {
+                                    _database.RecordDraw(currentClientSocket.username);
+                                    _database.RecordDraw(opponent.username);
+                                }
+                                catch
+                                {
+                                    AddToChat("Exception. Failed to add draw");
+                                }
                                 SendToClient(currentClientSocket,"!game_end draw");
                                 SendToClient(opponent, "!game_end draw");
                                 EndGame(currentClientSocket,opponent );
                             }
                             else
                             {
+                                try
+                                {
+                                    _database.RecordWin(currentClientSocket.username);
+                                    _database.RecordLoss(opponent.username);
+                                }
+                                catch
+                                {
+                                    AddToChat("Exception. Failed to save result");
+                                }
                                 SendToClient(currentClientSocket,"!game_end win" );
                                 SendToClient(opponent,"!game_end lose");
                                 EndGame(currentClientSocket,opponent);
